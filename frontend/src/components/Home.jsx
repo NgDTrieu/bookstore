@@ -1,46 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Home = () => {
   const [books, setBooks] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/books?page=${page}&limit=10`, {
-          timeout: 30000,
-        });
-        console.log('Response data:', response.data);
+        const response = await axios.get(
+          `http://localhost:3000/api/books?page=${page}&limit=10`,
+          {
+            timeout: 30000,
+          }
+        );
+        console.log("Response data:", response.data);
         setBooks(response.data.books || []);
         setTotalPages(Math.ceil(response.data.total / response.data.limit));
       } catch (err) {
-        console.error('Fetch error:', err);
-        setError('Không thể tải danh sách sách');
+        console.error("Fetch error:", err);
+        setError("Không thể tải danh sách sách");
       }
     };
     fetchBooks();
   }, [page]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      // Gọi API lấy profile nếu có endpoint /api/users/me
+      axios
+        .get("http://localhost:3000/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => setUser(res.data))
+        .catch(() => {
+          // Nếu lỗi (token hết hạn), xoá và chuyển về login
+          localStorage.clear();
+          navigate("/login");
+        });
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    // Nếu có route logout backend: axios.post('/api/logout')
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    setUser(null);
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-600 text-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-center">Cửa Hàng Sách Online</h1>
-          <p className="mt-2 text-lg text-center">
-            Khám phá thế giới tri thức với hàng ngàn cuốn sách hấp dẫn!
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold">Cửa Hàng Sách Online</h1>
+            <p className="mt-1">
+              Khám phá thế giới tri thức với hàng ngàn cuốn sách!
+            </p>
+          </div>
+          <div>
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span>Xin chào, {user.fullName || user.email}</span>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 px-3 py-1 rounded hover:bg-red-600 transition"
+                >
+                  Đăng xuất
+                </button>
+              </div>
+            ) : (
+              <div className="flex space-x-4 justify-center p-4 bg-gray-100 rounded-lg shadow-md">
+                <Link
+                  to="/login"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300 shadow-sm"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300 shadow-sm"
+                >
+                  Đăng ký
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </header>
+
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Hãy tham gia ngay để mua sắm!
           </h2>
-          <div className="flex justify-center gap-4">
+          {/* <div className="flex justify-center gap-4">
             <Link
               to="/login"
               className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition"
@@ -53,7 +114,7 @@ const Home = () => {
             >
               Đăng ký
             </Link>
-          </div>
+          </div> */}
         </div>
       </section>
       <section className="py-12">
@@ -81,22 +142,30 @@ const Home = () => {
                       alt={book.title}
                       className="w-full h-48 object-cover"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/150x200?text=No+Image';
+                        e.target.src =
+                          "https://via.placeholder.com/150x200?text=No+Image";
                       }}
                     />
                     <div className="p-4">
-                      <h3 className="text-lg font-medium text-gray-800">{book.title}</h3>
+                      <h3 className="text-lg font-medium text-gray-800">
+                        {book.title}
+                      </h3>
                       <p className="text-sm text-gray-600">
-                        {book.authors.join(', ')}
+                        {book.authors.join(", ")}
                       </p>
                       <p className="text-lg font-semibold text-blue-600 mt-2">
                         {(book.price / 1000).toFixed(3)} VNĐ
                       </p>
                       <button
-                        disabled
-                        className="mt-4 w-full bg-gray-300 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed"
+                        disabled={!user}
+                        className={`mt-4 w-full px-4 py-2 rounded-lg transition
+                        ${
+                          user
+                            ? "bg-blue-500 text-white hover:bg-blue-600"
+                            : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        }`}
                       >
-                        Đăng nhập để mua
+                        {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
                       </button>
                     </div>
                   </div>
@@ -110,9 +179,13 @@ const Home = () => {
                 >
                   Trang trước
                 </button>
-                <span className="py-2">Trang {page} / {totalPages}</span>
+                <span className="py-2">
+                  Trang {page} / {totalPages}
+                </span>
                 <button
-                  onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                   disabled={page === totalPages}
                   className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
                 >
