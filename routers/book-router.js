@@ -9,6 +9,7 @@ bookRouter.post(
   parseFile("coverImage"),
   bookController.createBook
 );
-bookRouter.get("/", bookController.getAllBooks)
+bookRouter.get("/", bookController.getAllBooks);
+bookRouter.get("/:id", bookController.getBookById);
 
 module.exports = { bookRouter };

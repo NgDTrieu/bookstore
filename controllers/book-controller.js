@@ -25,7 +25,20 @@ const bookController = {
       console.log(`Found ${books.length} books, total ${total}`);
       return res.status(200).json({ books, total, page, limit });
     } catch (error) {
-      console.error('Error in getAllBooks:', error);
+      console.error("Error in getAllBooks:", error);
+      next(error);
+    }
+  },
+  getBookById: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const book = await Book.findById(id);
+      if (!book) {
+        return res.status(404).json({ message: "Không tìm thấy sách" });
+      }
+      return res.status(200).json(book);
+    } catch (error) {
+      console.error("Error in getBookById:", error);
       next(error);
     }
   },

@@ -101,20 +101,6 @@ const Home = () => {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Hãy tham gia ngay để mua sắm!
           </h2>
-          {/* <div className="flex justify-center gap-4">
-            <Link
-              to="/login"
-              className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition"
-            >
-              Đăng nhập
-            </Link>
-            <Link
-              to="/register"
-              className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition"
-            >
-              Đăng ký
-            </Link>
-          </div> */}
         </div>
       </section>
       <section className="py-12">
@@ -133,42 +119,44 @@ const Home = () => {
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {books.map((book) => (
-                  <div
-                    key={book._id} // Sửa từ book.id thành book._id
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
+                  <Link
+                    to={`/books/${book.id || book._id}`}
+                    key={book.id || book._id}
                   >
-                    <img
-                      src={book.coverImageUrl}
-                      alt={book.title}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/150x200?text=No+Image";
-                      }}
-                    />
-                    <div className="p-4">
-                      <h3 className="text-lg font-medium text-gray-800">
-                        {book.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {book.authors.join(", ")}
-                      </p>
-                      <p className="text-lg font-semibold text-blue-600 mt-2">
-                        {(book.price / 1000).toFixed(3)} VNĐ
-                      </p>
-                      <button
-                        disabled={!user}
-                        className={`mt-4 w-full px-4 py-2 rounded-lg transition
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                      <img
+                        src={book.coverImageUrl}
+                        alt={book.title}
+                        className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/150x200?text=No+Image";
+                        }}
+                      />
+                      <div className="p-4">
+                        <h3 className="text-lg font-medium text-gray-800">
+                          {book.title}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {book.authors.join(", ")}
+                        </p>
+                        <p className="text-lg font-semibold text-blue-600 mt-2">
+                          {(book.price / 1000).toFixed(3)} VNĐ
+                        </p>
+                        <button
+                          disabled={!user}
+                          className={`mt-4 w-full px-4 py-2 rounded-lg transition
                         ${
                           user
                             ? "bg-blue-500 text-white hover:bg-blue-600"
                             : "bg-gray-300 text-gray-600 cursor-not-allowed"
                         }`}
-                      >
-                        {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
-                      </button>
+                        >
+                          {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
               <div className="mt-6 flex justify-center gap-4">
