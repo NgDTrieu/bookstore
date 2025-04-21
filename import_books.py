@@ -25,15 +25,17 @@ try:
     # Xử lý dữ liệu
     books = []
     for _, row in df.iterrows():
+        genres = row['genres'] if pd.notna(row['genres']) else ""
         book = {
-            'title': row['title'] if pd.notna(row['title']) else 'Unknown',
-            'authors': [row['author']] if pd.notna(row['author']) else ['Unknown'],
-            'publisher': row['publisher'] if pd.notna(row['publisher']) else 'Unknown',
-            'category': row['genres'].split(',')[0] if pd.notna(row['genres']) else 'General',
-            'price': random.randint(50000, 300000),
-            'description': row['description'] if pd.notna(row['description']) else 'No description',
-            'quantity': random.randint(10, 1000),
-            'coverImageUrl': row['coverImg'] if pd.notna(row['coverImg']) else 'https://via.placeholder.com/150x200?text=No+Image'
+        'title':       row['title'] or 'Unknown',
+        'authors':     [row['author']] if pd.notna(row['author']) else ['Unknown'],
+        'publisher':   row['publisher'] if pd.notna(row['publisher']) else 'Unknown',
+        'category':    [g.strip() for g in genres.split(',')] if genres else ['General'],
+        'price':       random.randint(50000, 300000),
+        'description': row['description'] if pd.notna(row['description']) else 'No description',
+        'quantity':    random.randint(10, 1000),
+        'coverImageUrl': row['coverImg'] if pd.notna(row['coverImg'])
+                        else 'https://via.placeholder.com/150x200?text=No+Image'
         }
         books.append(book)
 

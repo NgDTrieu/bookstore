@@ -122,6 +122,7 @@ const Home = () => {
                   <Link
                     to={`/books/${book.id || book._id}`}
                     key={book.id || book._id}
+                    state={{ user }}
                   >
                     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
                       <img
@@ -151,6 +152,7 @@ const Home = () => {
                             ? "bg-blue-500 text-white hover:bg-blue-600"
                             : "bg-gray-300 text-gray-600 cursor-not-allowed"
                         }`}
+                          onClick={() => console.log("Chưa có giỏ hàng !!!")}
                         >
                           {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
                         </button>
