@@ -14,7 +14,7 @@ const Home = () => {
     const fetchBooks = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/books?page=${page}&limit=10`,
+          `http://localhost:3000/api/books?page=${page}&limit=20`,
           {
             timeout: 30000,
           }
@@ -117,42 +117,42 @@ const Home = () => {
             <p className="text-center text-gray-600">Chưa có sách nào</p>
           ) : (
             <div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-stretch">
                 {books.map((book) => (
-                  <Link
-                    to={`/books/${book.id || book._id}`}
-                    key={book.id || book._id}
-                    state={{ user }}
-                  >
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                      <img
-                        src={book.coverImageUrl}
-                        alt={book.title}
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          e.target.src =
-                            "https://via.placeholder.com/150x200?text=No+Image";
-                        }}
-                      />
-                      <div className="p-4">
-                        <h3 className="text-lg font-medium text-gray-800">
-                          {book.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {book.authors.join(", ")}
-                        </p>
-                        <p className="text-lg font-semibold text-blue-600 mt-2">
-                          {(book.price / 1000).toFixed(3)} VNĐ
-                        </p>
+                  <Link to={`/books/${book.id}`} key={book.id}>
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col h-full">
+                      <div className="w-full aspect-[3/4]">
+                        <img
+                          src={book.coverImageUrl}
+                          alt={book.title}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            e.target.src =
+                              "https://via.placeholder.com/150x200?text=No+Image";
+                          }}
+                        />
+                      </div>
+                      <div className="p-4 flex flex-col flex-grow justify-between">
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-800">
+                            {book.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {book.authors.join(", ")}
+                          </p>
+                          <p className="text-lg font-semibold text-blue-600 mt-2">
+                            {(book.price / 1000).toFixed(3)} VNĐ
+                          </p>
+                        </div>
                         <button
                           disabled={!user}
                           className={`mt-4 w-full px-4 py-2 rounded-lg transition
-                        ${
-                          user
-                            ? "bg-blue-500 text-white hover:bg-blue-600"
-                            : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                        }`}
-                          onClick={() => console.log("Chưa có giỏ hàng !!!")}
+              ${
+                user
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+                          onClick={() => console.log("…")}
                         >
                           {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
                         </button>

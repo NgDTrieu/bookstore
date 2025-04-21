@@ -17,7 +17,7 @@ const bookController = {
   getAllBooks: async (req, res, next) => {
     try {
       const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = parseInt(req.query.limit) || 20;
       const skip = (page - 1) * limit;
       console.log(`Fetching page ${page}, limit ${limit}...`);
       const books = await Book.find().skip(skip).limit(limit);
