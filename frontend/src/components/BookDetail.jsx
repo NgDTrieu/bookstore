@@ -12,6 +12,20 @@ const BookDetail = () => {
   const [book, setBook] = useState(null);
   const [error, setError] = useState("");
 
+  // Các state cho phần xem trước trang sách
+  const [showPages, setShowPages] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [zoom, setZoom] = useState(1);
+
+  // Mock URLs cho 4 trang đầu
+  const mockPages = [
+    "../../mockupbook/page1.png",
+    "../../mockupbook/page2.png",
+    "../../mockupbook/page3.png",
+    "../../mockupbook/page4.png",
+  ];
+
   useEffect(() => {
     axios
       .get(`http://localhost:3000/api/books/${id}`)
@@ -21,6 +35,13 @@ const BookDetail = () => {
         setError("Không tìm thấy sách");
       });
   }, [id]);
+
+  // zoom bằng wheel
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    setZoom((z) => Math.min(Math.max(z + delta, 0.5), 3));
+  };
 
   if (error) return <p className="text-center text-red-600">{error}</p>;
   if (!book) return <p className="text-center">Đang tải...</p>;
@@ -102,6 +123,83 @@ const BookDetail = () => {
             <h2 className="text-2xl font-semibold mb-2">Mô tả</h2>
             <p>{book.description}</p>
           </div>
+          {/* Phần mock xem trước 4 trang đầu, chỉ hiển thị khi user != null */}
+          {user && (
+            <div className="mt-8">
+              <h2 className="text-2xl font-semibold mb-4">Xem trước sách</h2>
+              <button
+                onClick={() => setShowPages((v) => !v)}
+                className="px-4 py-2 bg-blue-600 text-white rounded mb-4"
+              >
+                {showPages ? "Ẩn trang" : "Xem 4 trang đầu"}
+              </button>
+
+              {showPages && (
+                <div className="grid grid-cols-4 gap-4">
+                  {mockPages.map((src, idx) => (
+                    <img
+                      key={idx}
+                      src={src}
+                      alt={`Page ${idx + 1}`}
+                      className="cursor-pointer border hover:shadow-lg"
+                      onClick={() => {
+                        setCurrentPage(idx);
+                        setZoom(1);
+                        setModalOpen(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Modal hiển thị trang sách và zoom */}
+          {modalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+              {/* Close */}
+              <button
+                onClick={() => setModalOpen(false)}
+                className="absolute top-4 right-4 text-white text-2xl"
+              >
+                ×
+              </button>
+
+              <div className="relative flex items-center space-x-4">
+                {/* Prev */}
+                <button
+                  onClick={() =>
+                    setCurrentPage(
+                      (cp) => (cp - 1 + mockPages.length) % mockPages.length
+                    )
+                  }
+                  className="text-white text-4xl px-4"
+                >
+                  ‹
+                </button>
+
+                {/* Image with wheel zoom */}
+                <div onWheel={handleWheel} className="overflow-hidden">
+                  <img
+                    src={mockPages[currentPage]}
+                    alt={`Trang ${currentPage + 1}`}
+                    style={{ transform: `scale(${zoom})` }}
+                    className="max-h-[80vh] max-w-[80vw] transition-transform"
+                  />
+                </div>
+
+                {/* Next */}
+                <button
+                  onClick={() =>
+                    setCurrentPage((cp) => (cp + 1) % mockPages.length)
+                  }
+                  className="text-white text-4xl px-4"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* nút Thêm vào giỏ hoặc Đăng nhập */}
           <button
