@@ -1,13 +1,18 @@
 import pandas as pd
 import random
+import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+from dotenv import load_dotenv
 
 try:
     print("Attempting to connect to MongoDB...")
     # Kết nối MongoDB
+    load_dotenv()  
+    mongo_url = os.getenv('MONGO_URL')
+    print(f"Mongo URL: {mongo_url}")
     client = MongoClient(
-        'mongodb://root:root@171.254.94.32:27017/bookstore?replicaSet=rs0&authSource=admin&directConnection=true',
+        mongo_url,
         serverSelectionTimeoutMS=5000
     )
     db = client['bookstore']

@@ -2,7 +2,7 @@ const { RuntimeError } = require("./runtime-error");
 
 class ForbiddenError extends RuntimeError {
   constructor(message = "Forbidden") {
-    super(400, message);
+    super(403, message);
     Object.setPrototypeOf(this, ForbiddenError.prototype);
   }
 }

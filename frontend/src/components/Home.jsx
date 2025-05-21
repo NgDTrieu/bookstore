@@ -33,7 +33,6 @@ const Home = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
-      // Gọi API lấy profile nếu có endpoint /api/users/me
       axios
         .get("http://localhost:3000/api/users/me", {
           headers: { Authorization: `Bearer ${token}` },
@@ -48,7 +47,6 @@ const Home = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    // Nếu có route logout backend: axios.post('/api/logout')
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     setUser(null);
@@ -138,7 +136,7 @@ const Home = () => {
                             {book.title}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {book.authors.join(", ")}
+                            {book.authors}
                           </p>
                           <p className="text-lg font-semibold text-blue-600 mt-2">
                             {(book.price / 1000).toFixed(3)} VNĐ

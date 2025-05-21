@@ -59,8 +59,7 @@ const BookDetail = () => {
 
           <div className="space-y-2 mb-6">
             <p className="text-gray-700">
-              <span className="font-semibold">Tác giả:</span>{" "}
-              {book.authors.join(", ")}
+              <span className="font-semibold">Tác giả:</span> {book.authors}
             </p>
             <p className="text-gray-700">
               <span className="font-semibold">Nhà xuất bản:</span>{" "}
