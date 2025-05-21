@@ -1,34 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 const Home = () => {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read `search` and `page` from URL query string
+  const search = searchParams.get("search") || "";
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/books?page=${page}&limit=20`,
-          {
-            timeout: 30000,
-          }
-        );
-        console.log("Response data:", response.data);
-        setBooks(response.data.books || []);
-        setTotalPages(Math.ceil(response.data.total / response.data.limit));
+        const { data } = await axios.get("http://localhost:3000/api/books", {
+          params: { page, limit: 20, search },
+          timeout: 30000,
+        });
+        setBooks(data.books || []);
+        setTotalPages(Math.ceil(data.total / data.limit));
       } catch (err) {
         console.error("Fetch error:", err);
         setError("Không thể tải danh sách sách");
       }
     };
     fetchBooks();
-  }, [page]);
+  }, [search, page]);
+
+  // Handlers
+  const handleSearchInput = (e) => {
+    // Update search param but reset to page 1
+    setSearchParams({ search: e.target.value, page: "1" });
+  };
+
+  const handleSearchSubmit = () => {
+    setSearchParams({ search: search.trim(), page: "1" });
+  };
+
+  const goToPage = (newPage) => {
+    setSearchParams({ search, page: newPage.toString() });
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -103,6 +119,24 @@ const Home = () => {
       </section>
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <section className="py-6 bg-white">
+            <div className="max-w-3xl mx-auto px-4 flex">
+              <input
+                type="text"
+                className="flex-grow px-4 py-2 border border-gray-300 rounded-l focus:outline-none"
+                placeholder="Tìm kiếm theo tên sách, tác giả hoặc nội dung..."
+                value={search}
+                onChange={handleSearchInput}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
+              />
+              <button
+                onClick={handleSearchSubmit}
+                className="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
+              >
+                Tìm
+              </button>
+            </div>
+          </section>
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
             Sách Nổi Bật
           </h2>
@@ -159,27 +193,27 @@ const Home = () => {
                   </Link>
                 ))}
               </div>
-              <div className="mt-6 flex justify-center gap-4">
-                <button
-                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={page === 1}
-                  className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-                >
-                  Trang trước
-                </button>
-                <span className="py-2">
-                  Trang {page} / {totalPages}
-                </span>
-                <button
-                  onClick={() =>
-                    setPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={page === totalPages}
-                  className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-                >
-                  Trang sau
-                </button>
-              </div>
+              <footer className="py-6 bg-white">
+                <div className="flex justify-center items-center space-x-4">
+                  <button
+                    onClick={() => goToPage(Math.max(page - 1, 1))}
+                    disabled={page === 1}
+                    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                  >
+                    Trang trước
+                  </button>
+                  <span>
+                    Trang {page} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => goToPage(Math.min(page + 1, totalPages))}
+                    disabled={page === totalPages}
+                    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                  >
+                    Trang sau
+                  </button>
+                </div>
+              </footer>
             </div>
           )}
         </div>

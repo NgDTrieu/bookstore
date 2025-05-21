@@ -16,14 +16,33 @@ const bookController = {
   },
   getAllBooks: async (req, res, next) => {
     try {
+      // parse query params
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 20;
+      const search = req.query.search || "";
       const skip = (page - 1) * limit;
-      console.log(`Fetching page ${page}, limit ${limit}...`);
-      const books = await Book.find().skip(skip).limit(limit);
-      const total = await Book.countDocuments();
-      console.log(`Found ${books.length} books, total ${total}`);
-      return res.status(200).json({ books, total, page, limit });
+
+      // build filter
+      const filter = {};
+      if (search) {
+        const regex = new RegExp(search, "i"); // i = case-insensitive
+        filter.$or = [
+          { title: regex },
+          { authors: regex },
+          { category: regex },
+        ];
+      }
+
+      // query với filter, pagination
+      const books = await Book.find(filter).skip(skip).limit(limit);
+      const total = await Book.countDocuments(filter);
+
+      return res.status(200).json({
+        books,
+        total,
+        page,
+        limit,
+      });
     } catch (error) {
       console.error("Error in getAllBooks:", error);
       next(error);
