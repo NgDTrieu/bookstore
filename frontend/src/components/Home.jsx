@@ -155,7 +155,7 @@ return (
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-stretch">
               {books.map((book) => (
-                <Link to={`/books/${book.id}`} key={book.id}>
+                <Link to={`/books/${book.id}`} key={book.id} state={{ user }}>
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col h-full">
                     <div className="w-full aspect-[3/4]">
                       <img

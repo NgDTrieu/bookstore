@@ -1,15 +1,16 @@
+// BookDetail.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
 
 const BookDetail = () => {
+  const { state } = useLocation();
+  const user = state?.user;
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [error, setError] = useState("");
-  const { state } = useLocation();
-  const user = state?.user;
 
   useEffect(() => {
     axios
@@ -34,41 +35,64 @@ const BookDetail = () => {
         ← Quay lại
       </button>
 
-      {/* Container 2 cột */}
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Ảnh bên trái */}
-        <div className="w-full lg:w-1/3 flex-shrink-0">
-          <div className="w-full aspect-[3/4]">
-            <img
-              src={book.coverImageUrl}
-              alt={book.title}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                e.target.src =
-                  "https://via.placeholder.com/300x400?text=No+Image";
-              }}
-            />
-          </div>
+        {/* Cover image */}
+        <div className="w-full lg:w-1/3">
+          <img
+            src={book.coverImageUrl}
+            alt={book.title}
+            className="w-full object-contain"
+            onError={(e) => {
+              e.target.src =
+                "https://via.placeholder.com/300x400?text=No+Image";
+            }}
+          />
         </div>
 
-        {/* Thông tin bên phải */}
+        {/* Book info */}
         <div className="w-full lg:w-2/3 flex flex-col">
           <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
             {book.title}
           </h1>
 
           <div className="space-y-2 mb-6">
+            {/* Tác giả click được */}
             <p className="text-gray-700">
-              <span className="font-semibold">Tác giả:</span> {book.authors}
+              <span className="font-semibold">Tác giả:</span>{" "}
+              {book.authors.map((author, idx) => (
+                <span key={author}>
+                  <Link
+                    to={`/?search=${encodeURIComponent(author)}&page=1`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {author}
+                  </Link>
+                  {idx < book.authors.length - 1 && ", "}
+                </span>
+              ))}
             </p>
+
             <p className="text-gray-700">
               <span className="font-semibold">Nhà xuất bản:</span>{" "}
               {book.publisher}
             </p>
+
+            {/* Thể loại click được */}
             <p className="text-gray-700">
               <span className="font-semibold">Thể loại:</span>{" "}
-              {book.category.join(", ")}
+              {book.category.map((cat, idx) => (
+                <span key={cat}>
+                  <Link
+                    to={`/?search=${encodeURIComponent(cat)}&page=1`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {cat}
+                  </Link>
+                  {idx < book.category.length - 1 && ", "}
+                </span>
+              ))}
             </p>
+
             <p className="text-2xl font-semibold text-blue-600">
               {(book.price / 1000).toFixed(3)} VNĐ
             </p>
@@ -79,13 +103,16 @@ const BookDetail = () => {
             <p>{book.description}</p>
           </div>
 
+          {/* nút Thêm vào giỏ hoặc Đăng nhập */}
           <button
             disabled={!user}
-            className={`mt-auto w-full px-6 py-3 rounded-lg text-lg font-medium transition ${
-              user
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-200 text-gray-500 cursor-not-allowed"
-            }`}
+            className={`mt-4 w-full px-4 py-2 rounded-lg transition
+              ${
+                user
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+            onClick={() => console.log("…")}
           >
             {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
           </button>
