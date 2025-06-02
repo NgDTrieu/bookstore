@@ -1,3 +1,4 @@
+// BookDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -50,7 +51,7 @@ const BookDetail = () => {
   if (!book) return <p className="text-center">Đang tải...</p>;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 pt-16">
       <Header user={localUser} setUser={setLocalUser} />
       <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <button
