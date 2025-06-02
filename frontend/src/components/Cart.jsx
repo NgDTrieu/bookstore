@@ -1,14 +1,27 @@
 import React from "react";
 import { useCart } from "../context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
+import { Trash2, Plus, Minus } from "lucide-react";
 import Header from "./Header";
 
 const Cart = ({ user, setUser }) => {
-  const { cartItems } = useCart();
+  const { cartItems, removeFromCart, updateQuantity } = useCart();
   const navigate = useNavigate();
 
-  // Tính tổng số tiền
-  const totalPrice = cartItems.reduce((total, book) => total + book.price, 0);
+  // Group identical books and count quantities
+  const groupedItems = cartItems.reduce((acc, book) => {
+    const existing = acc.find((item) => item.id === book.id);
+    if (existing) {
+      existing.quantity += 1;
+      existing.totalPrice = existing.quantity * book.price;
+    } else {
+      acc.push({ ...book, quantity: 1, totalPrice: book.price });
+    }
+    return acc;
+  }, []);
+
+  // Calculate total price
+  const totalPrice = groupedItems.reduce((total, book) => total + book.totalPrice, 0);
 
   return (
     <div className="min-h-screen bg-gray-100 pt-16">
@@ -21,12 +34,12 @@ const Cart = ({ user, setUser }) => {
           ← Quay lại
         </button>
         <h1 className="text-3xl font-bold mb-6 text-gray-900">Giỏ hàng của bạn</h1>
-        {cartItems.length === 0 ? (
+        {groupedItems.length === 0 ? (
           <p className="text-center text-gray-600">Giỏ hàng trống.</p>
         ) : (
           <div>
             <div className="space-y-4 mb-8">
-              {cartItems.map((book, idx) => (
+              {groupedItems.map((book, idx) => (
                 <div
                   key={`${book.id}-${idx}`}
                   className="flex items-center bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition"
@@ -42,9 +55,33 @@ const Cart = ({ user, setUser }) => {
                       {book.title}
                     </Link>
                   </div>
-                  <span className="w-32 text-right font-semibold text-blue-600">
-                    {(book.price / 1000).toFixed(3)} VNĐ
-                  </span>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => updateQuantity(book.id, book.quantity - 1)}
+                        disabled={book.quantity <= 1}
+                        className="p-1 text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <span className="w-12 text-center">{book.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(book.id, book.quantity + 1)}
+                        className="p-1 text-gray-600 hover:text-gray-800"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                    <span className="w-32 text-right font-semibold text-blue-600">
+                      {(book.totalPrice / 1000).toFixed(3)} VNĐ
+                    </span>
+                    <button
+                      onClick={() => removeFromCart(book.id)}
+                      className="p-2 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
