@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { ShoppingCart } from "lucide-react";
+import { useCart } from "../context/CartContext";
+
+
+
 
 const Home = () => {
   const [books, setBooks] = useState([]);
@@ -73,6 +78,8 @@ const handleLogout = () => {
   navigate("/");
 };
 
+const { cartCount } = useCart();
+
 return (
   <div className="min-h-screen bg-gray-100">
     <header className="bg-blue-600 text-white py-6">
@@ -86,6 +93,15 @@ return (
         <div>
           {user ? (
             <div className="flex items-center space-x-4">
+              <Link to="/cart" className="relative">
+                <ShoppingCart size={24} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center
+                    px-1.5 py-0.5 text-xs font-bold text-white bg-red-600 rounded-full">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
               <span>Xin chào, {user.fullName || user.email}</span>
               <button
                 onClick={handleLogout}
@@ -188,7 +204,7 @@ return (
               }`}
                         onClick={() => console.log("…")}
                       >
-                        {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
+                        {user ? "Xem Chi tiết" : "Đăng nhập để mua"}
                       </button>
                     </div>
                   </div>

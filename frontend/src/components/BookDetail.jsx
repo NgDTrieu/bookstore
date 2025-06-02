@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
+import { useCart } from "../context/CartContext";
 
 const BookDetail = () => {
+  const { addToCart } = useCart();
   const { state } = useLocation();
   const user = state?.user;
 
@@ -210,7 +212,7 @@ const BookDetail = () => {
                   ? "bg-blue-500 text-white hover:bg-blue-600"
                   : "bg-gray-300 text-gray-600 cursor-not-allowed"
               }`}
-            onClick={() => console.log("…")}
+            onClick={() => addToCart(book)}
           >
             {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
           </button>
