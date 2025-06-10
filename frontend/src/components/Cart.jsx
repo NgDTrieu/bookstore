@@ -1,15 +1,20 @@
-import React from "react";
-import { useCart } from "../context/CartContext";
-import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Plus, Minus } from "lucide-react";
-import Header from "./Header";
-import { useUser } from "../context/UserContext";
+import React, { useState } from 'react';
+import { useCart } from '../context/CartContext';
+import { useUser } from '../context/UserContext';
+import { useOrders } from '../context/OrderContext';
+import { Link, useNavigate } from 'react-router-dom';
+import { Trash2, Plus, Minus } from 'lucide-react';
+import Header from './Header';
 
 const Cart = () => {
-  const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const { user } = useUser();
+  const { addOrder } = useOrders();
   const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
+  // Group identical books and count quantities
   const groupedItems = cartItems.reduce((acc, book) => {
     const existing = acc.find((item) => item.id === book.id);
     if (existing) {
@@ -21,7 +26,40 @@ const Cart = () => {
     return acc;
   }, []);
 
+  // Calculate total price
   const totalPrice = groupedItems.reduce((total, book) => total + book.totalPrice, 0);
+
+  // Handle checkout: create mock order and reset cart
+  const handleCheckout = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (groupedItems.length === 0) {
+      setError('Giỏ hàng trống, không thể đặt hàng');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    try {
+      const orderData = {
+        items: groupedItems.map(item => ({
+          bookId: item.id,
+          title: item.title,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        totalPrice,
+      };
+      addOrder(orderData); // Lưu đơn hàng vào OrderContext
+      clearCart(); // Reset giỏ hàng
+      navigate('/orders', { state: { success: 'Đơn hàng đã được đặt thành công!' } });
+    } catch (err) {
+      setError('Đặt hàng thất bại');
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 pt-16">
@@ -34,6 +72,7 @@ const Cart = () => {
           ← Quay lại
         </button>
         <h1 className="text-3xl font-bold mb-6 text-gray-900">Giỏ hàng của bạn</h1>
+        {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
         {groupedItems.length === 0 ? (
           <p className="text-center text-gray-600">Giỏ hàng trống.</p>
         ) : (
@@ -94,9 +133,15 @@ const Cart = () => {
               </span>
             </div>
             <button
-              className="mt-6 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+              onClick={handleCheckout}
+              disabled={loading || !user}
+              className={`mt-6 w-full px-4 py-2 rounded-lg transition ${
+                loading || !user
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
             >
-              Xác nhận mua hàng
+              {loading ? 'Đang xử lý...' : user ? 'Xác nhận mua hàng' : 'Đăng nhập để mua'}
             </button>
           </div>
         )}

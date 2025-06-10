@@ -1,8 +1,8 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
-import { useCart } from "../context/CartContext";
-import { useUser } from "../context/UserContext";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, Package } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useUser } from '../context/UserContext';
 
 const Header = () => {
   const { cartCount } = useCart();
@@ -24,6 +24,9 @@ const Header = () => {
                     {cartCount}
                   </span>
                 )}
+              </Link>
+              <Link to="/orders" className="relative">
+                <Package size={20} />
               </Link>
               <span className="text-sm">{user.fullName || user.email}</span>
               <button

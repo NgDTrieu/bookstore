@@ -35,11 +35,15 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  const clearCart = () => {
+    setCartItems([]); // Reset giỏ hàng về rỗng
+  };
+
   const cartCount = cartItems.length;
 
   return (
     <CartContext.Provider
-      value={{ cartItems, cartCount, addToCart, removeFromCart, updateQuantity }}
+      value={{ cartItems, cartCount, addToCart, removeFromCart, updateQuantity, clearCart }}
     >
       {children}
     </CartContext.Provider>
