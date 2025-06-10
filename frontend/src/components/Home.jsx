@@ -2,22 +2,21 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import Header from "./Header";
+import { useUser } from "../context/UserContext";
 
 const Home = () => {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
   const [totalPages, setTotalPages] = useState(1);
-  const [user, setUser] = useState(null);
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // Read `search` and `page` from URL query string
   const search = searchParams.get("search") || "";
   const page = parseInt(searchParams.get("page") || "1", 10);
 
   useEffect(() => {
-    window.scrollTo({ top: 300, behavior: "smooth" });
+    window.scrollTo({ top: 290, behavior: "smooth" });
   }, [page]);
 
   useEffect(() => {
@@ -37,22 +36,6 @@ const Home = () => {
     fetchBooks();
   }, [search, page]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      axios
-        .get("http://localhost:3000/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => setUser(res.data))
-        .catch(() => {
-          localStorage.clear();
-          navigate("/login");
-        });
-    }
-  }, [navigate]);
-
-  // Handlers
   const handleSearchInput = (e) => {
     setSearchParams({ search: e.target.value, page: "1" });
   };
@@ -67,7 +50,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 pt-16">
-      <Header user={user} setUser={setUser} />
+      <Header />
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">

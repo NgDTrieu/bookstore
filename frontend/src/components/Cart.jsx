@@ -3,12 +3,13 @@ import { useCart } from "../context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
 import { Trash2, Plus, Minus } from "lucide-react";
 import Header from "./Header";
+import { useUser } from "../context/UserContext";
 
-const Cart = ({ user, setUser }) => {
+const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { user } = useUser();
   const navigate = useNavigate();
 
-  // Group identical books and count quantities
   const groupedItems = cartItems.reduce((acc, book) => {
     const existing = acc.find((item) => item.id === book.id);
     if (existing) {
@@ -20,12 +21,11 @@ const Cart = ({ user, setUser }) => {
     return acc;
   }, []);
 
-  // Calculate total price
   const totalPrice = groupedItems.reduce((total, book) => total + book.totalPrice, 0);
 
   return (
     <div className="min-h-screen bg-gray-100 pt-16">
-      <Header user={user} setUser={setUser} />
+      <Header />
       <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <button
           onClick={() => navigate(-1)}

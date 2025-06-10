@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -8,6 +9,7 @@ const Register = () => {
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { setUser } = useUser(); // Lấy setUser từ UserContext
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +41,11 @@ const Register = () => {
       });
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
+      // Gọi API để lấy thông tin user và cập nhật context
+      const userResponse = await axios.get('http://localhost:3000/api/users/me', {
+        headers: { Authorization: `Bearer ${response.data.accessToken}` },
+      });
+      setUser(userResponse.data); // Cập nhật trạng thái user trong context
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Đăng ký thất bại');

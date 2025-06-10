@@ -1,28 +1,23 @@
-// BookDetail.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
+import { useUser } from "../context/UserContext";
 import Header from "./Header";
 
 const BookDetail = () => {
   const { addToCart } = useCart();
-  const { state } = useLocation();
-  const user = state?.user;
-  const [localUser, setLocalUser] = useState(user);
-
+  const { user } = useUser();
   const { id } = useParams();
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [error, setError] = useState("");
 
-  // Các state cho phần xem trước trang sách
   const [showPages, setShowPages] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [zoom, setZoom] = useState(1);
 
-  // Mock URLs cho 4 trang đầu
   const mockPages = [
     "../../mockupbook/page1.png",
     "../../mockupbook/page2.png",
@@ -40,7 +35,6 @@ const BookDetail = () => {
       });
   }, [id]);
 
-  // zoom bằng wheel
   const handleWheel = (e) => {
     e.preventDefault();
     const delta = e.deltaY < 0 ? 0.1 : -0.1;
@@ -52,7 +46,7 @@ const BookDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 pt-16">
-      <Header user={localUser} setUser={setLocalUser} />
+      <Header />
       <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <button
           onClick={() => navigate(-1)}
@@ -125,7 +119,7 @@ const BookDetail = () => {
               <p>{book.description}</p>
             </div>
 
-            {localUser && (
+            {user && (
               <div className="mt-8">
                 <h2 className="text-2xl font-semibold mb-4">Xem trước sách</h2>
                 <button
@@ -198,12 +192,12 @@ const BookDetail = () => {
             )}
 
             <button
-              disabled={!localUser}
+              disabled={!user}
               className={`mt-4 w-full px-4 py-2 rounded-lg transition
-                ${localUser ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
+                ${user ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
               onClick={() => addToCart(book)}
             >
-              {localUser ? "Thêm vào giỏ" : "Đăng nhập để mua"}
+              {user ? "Thêm vào giỏ" : "Đăng nhập để mua"}
             </button>
           </div>
         </div>

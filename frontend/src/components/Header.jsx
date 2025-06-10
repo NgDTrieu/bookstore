@@ -1,19 +1,12 @@
-// Header.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useUser } from "../context/UserContext";
 
-const Header = ({ user, setUser }) => {
-  const navigate = useNavigate();
+const Header = () => {
   const { cartCount } = useCart();
-
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    setUser(null);
-    navigate("/");
-  };
+  const { user, logout } = useUser();
 
   return (
     <header className="bg-blue-600 text-white py-3 fixed top-0 left-0 w-full z-50">
@@ -34,7 +27,7 @@ const Header = ({ user, setUser }) => {
               </Link>
               <span className="text-sm">{user.fullName || user.email}</span>
               <button
-                onClick={handleLogout}
+                onClick={logout}
                 className="bg-red-500 px-2 py-1 rounded hover:bg-red-600 transition text-sm"
               >
                 Đăng xuất
