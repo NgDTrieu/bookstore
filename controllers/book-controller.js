@@ -20,6 +20,8 @@ const bookController = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 20;
       const search = req.query.search || "";
+      const minPrice = parseFloat(req.query.minPrice) || 0;
+      const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
       const skip = (page - 1) * limit;
 
       // build filter
@@ -32,8 +34,10 @@ const bookController = {
           { category: regex },
         ];
       }
+      // Add price range filter
+      filter.price = { $gte: minPrice, $lte: maxPrice };
 
-      // query với filter, pagination
+      // query with filter, pagination
       const books = await Book.find(filter).skip(skip).limit(limit);
       const total = await Book.countDocuments(filter);
 

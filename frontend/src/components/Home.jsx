@@ -14,16 +14,24 @@ const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const page = parseInt(searchParams.get("page") || "1", 10);
+  const minPrice = parseFloat(searchParams.get("minPrice") || "0");
+  const maxPrice = parseFloat(searchParams.get("maxPrice") || "999999");
+
+  // State for price range sliders
+  const [priceRange, setPriceRange] = useState({
+    min: minPrice,
+    max: maxPrice,
+  });
 
   useEffect(() => {
-    window.scrollTo({ top: 290, behavior: "smooth" });
+    window.scrollTo({ top: 400, behavior: "smooth" });
   }, [page]);
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
         const { data } = await axios.get("http://localhost:3000/api/books", {
-          params: { page, limit: 20, search },
+          params: { page, limit: 20, search, minPrice, maxPrice },
           timeout: 30000,
         });
         setBooks(data.books || []);
@@ -34,18 +42,47 @@ const Home = () => {
       }
     };
     fetchBooks();
-  }, [search, page]);
+  }, [search, page, minPrice, maxPrice]);
 
   const handleSearchInput = (e) => {
-    setSearchParams({ search: e.target.value, page: "1" });
+    setSearchParams({
+      search: e.target.value,
+      page: "1",
+      minPrice: priceRange.min.toString(),
+      maxPrice: priceRange.max.toString(),
+    });
   };
 
   const handleSearchSubmit = () => {
-    setSearchParams({ search: search.trim(), page: "1" });
+    setSearchParams({
+      search: search.trim(),
+      page: "1",
+      minPrice: priceRange.min.toString(),
+      maxPrice: priceRange.max.toString(),
+    });
+  };
+
+  const handlePriceChange = (e) => {
+    const { name, value } = e.target;
+    setPriceRange((prev) => ({ ...prev, [name]: parseFloat(value) }));
+  };
+
+  const applyPriceFilter = () => {
+    setSearchParams({
+      search,
+      page: "1",
+      minPrice: priceRange.min.toString(),
+      maxPrice: priceRange.max.toString(),
+    });
   };
 
   const goToPage = (newPage) => {
-    setSearchParams({ search, page: newPage.toString() });
+    setSearchParams({
+      search,
+      page: newPage.toString(),
+      minPrice: priceRange.min.toString(),
+      maxPrice: priceRange.max.toString(),
+    });
   };
 
   return (
@@ -61,21 +98,57 @@ const Home = () => {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <section className="py-6 bg-white">
-            <div className="max-w-3xl mx-auto px-4 flex">
-              <input
-                type="text"
-                className="flex-grow px-4 py-2 border border-gray-300 rounded-l focus:outline-none"
-                placeholder="Tìm kiếm theo tên sách, tác giả hoặc nội dung..."
-                value={search}
-                onChange={handleSearchInput}
-                onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
-              />
-              <button
-                onClick={handleSearchSubmit}
-                className="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
-              >
-                Tìm
-              </button>
+            <div className="max-w-3xl mx-auto px-4 flex flex-col gap-4">
+              <div className="flex">
+                <input
+                  type="text"
+                  className="flex-grow px-4 py-2 border border-gray-300 rounded-l focus:outline-none"
+                  placeholder="Tìm kiếm theo tên sách, tác giả hoặc nội dung..."
+                  value={search}
+                  onChange={handleSearchInput}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
+                />
+                <button
+                  onClick={handleSearchSubmit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
+                >
+                  Tìm
+                </button>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-gray-700">
+                  Khoảng giá: {(priceRange.min / 1000).toFixed(3)} VNĐ -{" "}
+                  {(priceRange.max / 1000).toFixed(3)} VNĐ
+                </label>
+                <div className="flex gap-4">
+                  <input
+                    type="range"
+                    name="min"
+                    min="0"
+                    max="999999"
+                    step="1000"
+                    value={priceRange.min}
+                    onChange={handlePriceChange}
+                    className="w-full"
+                  />
+                  <input
+                    type="range"
+                    name="max"
+                    min="0"
+                    max="999999"
+                    step="1000"
+                    value={priceRange.max}
+                    onChange={handlePriceChange}
+                    className="w-full"
+                  />
+                </div>
+                <button
+                  onClick={applyPriceFilter}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Lọc theo giá
+                </button>
+              </div>
             </div>
           </section>
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
